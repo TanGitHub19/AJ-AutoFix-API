@@ -1,0 +1,31 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Compiled output (if using TypeScript or other build tools)
+dist/
+build/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor settings
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+
+# Coverage reports (if using code coverage tools)
+coverage/
+
+# Build artifacts (e.g., if using a task runner like Gulp or Grunt)
+*.tgz
+*.gz
