@@ -42,6 +42,11 @@ const UserSchema = new mongoose.Schema(
       minlength: 6,
       maxlength: 128,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin", "serviceManager"],
+      default: "user",
+    },
   },
   {
     timestamps: true,

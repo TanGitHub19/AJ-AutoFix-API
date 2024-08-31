@@ -1,13 +1,20 @@
 const mongoose = require("mongoose");
+const User = require("./user.model")
 
 const bookingSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    validate: {
+      validator: async function (value) {
+        return User.exists({ _id: value });
+      },
+      message: "User not found"
+    }
   },
   serviceType: {
-    type: String,
+type: [String],
     required: true,
     enum: [
       "Oil Change",
@@ -33,7 +40,7 @@ const bookingSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: String,
+    type: Date,
     required: true,
   },
   status: {
