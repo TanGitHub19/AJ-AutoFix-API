@@ -10,7 +10,7 @@ const contactRoutes = require('./routes/contactRoutes');
 
 
 app.use(express.json());
-app.use("/api/user", authRoute, userRoute);
+app.use("/api/", authRoute, userRoute);
 app.use("/api/", bookingRoute);
 app.use("/api/", reviewsRoute);
 app.use('/api/', contactRoutes);
