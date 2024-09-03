@@ -13,9 +13,11 @@ app.use(express.json());
 app.use("/api/user", authRoute, userRoute);
 app.use("/api/", bookingRoute);
 app.use("/api/", reviewsRoute);
-app.use('/api', contactRoutes);
+app.use('/api/', contactRoutes);
 
-
+app.get("/", (req, res) => {
+    res.redirect("/api/");
+  });
 
 app.get("/", (req, res) => {
     console.log("Hello World");
