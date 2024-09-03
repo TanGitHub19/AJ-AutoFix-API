@@ -27,6 +27,31 @@ const getAllBooking = async (req, res) => {
   }
 };
 
+const getAllAcceptedBooking = async (req, res) => {
+  try {
+    const booking = await Booking.find({status: "accepted"});
+    res.status(200).json(booking);
+  } catch (error) {
+    res.status(500).json({message: error.message});
+  }
+};
+
+const getAllAcceptedBookingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bookings = await Booking.find({
+      _id: id,
+      status: "accepted"
+    });
+    if (bookings.length === 0) {
+      return res.status(404).json({ message: "No accepted booking found with this ID" });
+    }
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const createBooking = async (req, res) => {
     try {
       const { userId, ...bookingData } = req.body;
@@ -118,4 +143,6 @@ module.exports = {
   deleteBooking,
   acceptBooking,
   rejectBooking,
+  getAllAcceptedBooking,
+  getAllAcceptedBookingById
 };

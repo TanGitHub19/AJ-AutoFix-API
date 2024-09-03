@@ -9,7 +9,7 @@ userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
 
 userRouter.put('/update-role/:id', auth, requireRole("admin"), updateUserRole); 
-userRouter.put("/:id", updateUser);
+userRouter.put("/:id", auth, updateUser);
 
 userRouter.delete("/:id", deleteUser); 
 module.exports = userRouter;
