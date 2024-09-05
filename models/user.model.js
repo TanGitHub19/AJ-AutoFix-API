@@ -1,7 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema(
   {
+    profilePicture: {
+      type: String,
+      default: 'upload/profilePicture-1725531710781-814667139',
+    },
     fullname: {
       type: String,
       required: true,
@@ -53,6 +57,6 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.model('User', UserSchema);
 
 module.exports = User;

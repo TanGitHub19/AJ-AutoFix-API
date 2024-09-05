@@ -1,4 +1,7 @@
 const User = require("../models/user.model");
+const upload = require('../config/file_upload')
+const fs = require("fs");
+const path = require('path');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -7,19 +10,27 @@ const userRegistration = async (req, res) => {
     const { fullname, username, email, contactNumber, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exist" });
+      return res.status(400).json({ message: "Email already exists" });
     }
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
+
+    const saltRounds = 10;
+    const hashPassword = await bcrypt.hash(password, saltRounds);
+
+    const profilePicturePath = req.file ? req.file.path : "upload/profilePicture-1725531710781-814667139";
+
     const newUser = new User({
       fullname,
       username,
       email,
       contactNumber,
       password: hashPassword,
+      profilePicture: profilePicturePath || "upload/profilePicture-1725531710781-814667139", 
     });
+
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    console.error("Error in user registration:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -31,17 +42,18 @@ const userLogin = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "Invalid credentials" });
     }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(404).json({ message: "Invalid credentials" });
     }
+
     const token = jwt.sign(
-      { id: user._id, email: user.email },
+      { id: user._id, role: user.role },  
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
+      { expiresIn: "1d" }
     );
+
     res.status(200).json({
       message: "Login successful",
       token,
@@ -51,12 +63,16 @@ const userLogin = async (req, res) => {
         username: user.username,
         email: user.email,
         contactNumber: user.contactNumber,
+        profilePicture: user.profilePicture,
+        role: user.role 
       },
     });
   } catch (error) {
+    console.error("Error in user login:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 module.exports = {
   userRegistration,
