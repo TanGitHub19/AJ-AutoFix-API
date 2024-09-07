@@ -4,7 +4,6 @@ const UserSchema = new mongoose.Schema(
   {
     profilePicture: {
       type: String,
-      default: 'upload/profilePicture-1725531710781-814667139',
     },
     fullname: {
       type: String,

@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
-const upload = require('../config/file_upload')
+const upload = require("../config/file_upload");
 const fs = require("fs");
-const path = require('path');
+const path = require("path");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -16,7 +16,9 @@ const userRegistration = async (req, res) => {
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
-    const profilePicturePath = req.file ? req.file.path : "upload/profilePicture-1725531710781-814667139";
+    const profilePicturePath = req.file
+      ? req.file.path
+      : null;
 
     const newUser = new User({
       fullname,
@@ -24,7 +26,7 @@ const userRegistration = async (req, res) => {
       email,
       contactNumber,
       password: hashPassword,
-      profilePicture: profilePicturePath || "upload/profilePicture-1725531710781-814667139", 
+      profilePicture: profilePicturePath,
     });
 
     await newUser.save();
@@ -49,7 +51,7 @@ const userLogin = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },  
+      { id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
@@ -64,7 +66,7 @@ const userLogin = async (req, res) => {
         email: user.email,
         contactNumber: user.contactNumber,
         profilePicture: user.profilePicture,
-        role: user.role 
+        role: user.role,
       },
     });
   } catch (error) {
@@ -72,7 +74,6 @@ const userLogin = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 module.exports = {
   userRegistration,
