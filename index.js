@@ -24,8 +24,9 @@ app.use("/api/reviews", reviewsRoute);
 app.use("/api/contacts", contactRoutes);
 
 app.get("/", (req, res) => {
-    res.redirect("/api/");
+  res.redirect("/api/users");
 });
+
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
     console.log("Connected to Database!");
