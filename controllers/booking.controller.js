@@ -8,7 +8,7 @@ const getBookingById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid booking ID format" });
     }
-    const booking = await Booking.findById(id);
+    const booking = await Booking.findById(id).populate("userId", "fullname");
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
@@ -20,7 +20,7 @@ const getBookingById = async (req, res) => {
 
 const getAllBooking = async (req, res) => {
   try {
-    const bookings = await Booking.find({});
+    const bookings = await Booking.find({}).populate("userId", "fullname"); 
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -29,10 +29,13 @@ const getAllBooking = async (req, res) => {
 
 const getAllAcceptedBooking = async (req, res) => {
   try {
-    const booking = await Booking.find({status: "accepted"});
-    res.status(200).json(booking);
+    const bookings = await Booking.find({ status: "accepted" }).populate(
+      "userId",
+      "fullname"
+    ); 
+    res.status(200).json(bookings);
   } catch (error) {
-    res.status(500).json({message: error.message});
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -41,10 +44,12 @@ const getAllAcceptedBookingById = async (req, res) => {
     const { id } = req.params;
     const bookings = await Booking.find({
       _id: id,
-      status: "accepted"
-    });
+      status: "accepted",
+    }).populate("userId", "fullname");
     if (bookings.length === 0) {
-      return res.status(404).json({ message: "No accepted booking found with this ID" });
+      return res
+        .status(404)
+        .json({ message: "No accepted booking found with this ID" });
     }
     res.status(200).json(bookings);
   } catch (error) {
@@ -53,32 +58,33 @@ const getAllAcceptedBookingById = async (req, res) => {
 };
 
 const createBooking = async (req, res) => {
-    try {
-      const { userId, ...bookingData } = req.body;
-  
-      if (!userId) {
-        return res.status(400).json({ message: "User ID is required" });
-      }
-  
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(400).json({ message: "User not found" });
-      }
-  
-      const booking = new Booking({ userId, ...bookingData });
-      await booking.save();
-      res.status(201).json(booking);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+  try {
+    const { userId, ...bookingData } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
     }
-  };
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const booking = new Booking({ userId, ...bookingData });
+    await booking.save();
+    res.status(201).json(booking);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 const updateBooking = async (req, res) => {
   try {
     const { id } = req.params;
     const booking = await Booking.findByIdAndUpdate(id, req.body, {
       new: true,
-    });
+    }).populate("userId", "fullname");
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
@@ -108,7 +114,7 @@ const acceptBooking = async (req, res) => {
       id,
       { status: "accepted" },
       { new: true }
-    );
+    ).populate("userId", "fullname"); 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
@@ -125,7 +131,7 @@ const rejectBooking = async (req, res) => {
       id,
       { status: "rejected" },
       { new: true }
-    );
+    ).populate("userId", "fullname"); 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
@@ -144,5 +150,5 @@ module.exports = {
   acceptBooking,
   rejectBooking,
   getAllAcceptedBooking,
-  getAllAcceptedBookingById
+  getAllAcceptedBookingById,
 };

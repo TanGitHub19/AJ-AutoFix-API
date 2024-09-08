@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -56,6 +56,20 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-const User = mongoose.model('User', UserSchema);
+UserSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+
+  if (!update.password) {
+    delete update.password;
+  } else if (update.password === "") {
+    return next(new Error("Password cannot be empty"));
+  }
+
+  this.options.runValidators = true;
+
+  next();
+});
+
+const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

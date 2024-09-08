@@ -27,19 +27,32 @@ const getUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+    const { role, ...updateData } = req.body; 
+
     const requestRole = req.user?.role;
 
     if (requestRole !== "admin") {
-      return res.status(403).json({ message: "Access denied. Only admins can update roles." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Only admins can update user data." });
     }
 
-    const updateData = { ...req.body };
+    if (role && !["user", "admin", "service manager"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    if (role) {
+      updateData.role = role;
+    }
 
     if (req.file) {
       updateData.profilePicture = req.file.path;
     }
 
-    const user = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+    const user = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -47,10 +60,12 @@ const updateUser = async (req, res) => {
 
     res.status(200).json({ message: "User data updated successfully", user });
   } catch (error) {
-    console.error("Error in updating user:", error);
+    console.error("Error updating user:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+module.exports = updateUser;
 
 
 const deleteUser = async (req, res) => {
