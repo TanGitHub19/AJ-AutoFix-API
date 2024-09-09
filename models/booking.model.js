@@ -10,11 +10,11 @@ const bookingSchema = new mongoose.Schema({
       validator: async function (value) {
         return User.exists({ _id: value });
       },
-      message: "User not found"
-    }
+      message: "User not found",
+    },
   },
   serviceType: {
-type: [String],
+    type: [String],
     required: true,
     enum: [
       "Oil Change",
@@ -45,8 +45,8 @@ type: [String],
   },
   status: {
     type: String,
-    enum: ["pending", "confirmed", "rejected"],
-    default: "pending",
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
   },
 });
 

@@ -27,9 +27,21 @@ const getAllBooking = async (req, res) => {
   }
 };
 
+const getAllPendingBooking = async (req, res) => {
+  try {
+    const bookings = await Booking.find({ status: "Pending" }).populate(
+      "userId",
+      "fullname"
+    );
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 const getAllAcceptedBooking = async (req, res) => {
   try {
-    const bookings = await Booking.find({ status: "accepted" }).populate(
+    const bookings = await Booking.find({ status: "Approved" }).populate(
       "userId",
       "fullname"
     ); 
@@ -44,7 +56,7 @@ const getAllAcceptedBookingById = async (req, res) => {
     const { id } = req.params;
     const bookings = await Booking.find({
       _id: id,
-      status: "accepted",
+      status: "Approved",
     }).populate("userId", "fullname");
     if (bookings.length === 0) {
       return res
@@ -60,9 +72,16 @@ const getAllAcceptedBookingById = async (req, res) => {
 const createBooking = async (req, res) => {
   try {
     const { userId, ...bookingData } = req.body;
+    const authenticatedUserId = req.user._id;
 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
+    }
+
+    if (userId.toString() !== authenticatedUserId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to book for this user" });
     }
 
     const user = await User.findById(userId);
@@ -77,6 +96,7 @@ const createBooking = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 const updateBooking = async (req, res) => {
@@ -112,7 +132,7 @@ const acceptBooking = async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findByIdAndUpdate(
       id,
-      { status: "accepted" },
+      { status: "Approved" },
       { new: true }
     ).populate("userId", "fullname"); 
     if (!booking) {
@@ -129,7 +149,7 @@ const rejectBooking = async (req, res) => {
     const { id } = req.params;
     const booking = await Booking.findByIdAndUpdate(
       id,
-      { status: "rejected" },
+      { status: "Rejected" },
       { new: true }
     ).populate("userId", "fullname"); 
     if (!booking) {
@@ -142,6 +162,7 @@ const rejectBooking = async (req, res) => {
 };
 
 module.exports = {
+  getAllPendingBooking,
   getBookingById,
   getAllBooking,
   createBooking,

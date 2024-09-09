@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/objectId");
 const requireRole = require("../middleware/role");
 const {
+  getAllPendingBooking,
   getBookingById,
   getAllBooking,
   createBooking,
@@ -23,6 +24,13 @@ bookingRouter.get(
   auth,
   requireRole("admin"),
   getAllAcceptedBooking
+);
+
+bookingRouter.get(
+  "/admin/bookings/pending",
+  auth,
+  requireRole("admin"),
+  getAllPendingBooking
 );
 
 bookingRouter.get(
