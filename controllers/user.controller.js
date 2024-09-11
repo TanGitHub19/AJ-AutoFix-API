@@ -60,7 +60,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.file) {
-      updateData.profilePicture = req.file.path;
+      updateData.profilePicture = `${req.protocol}://${req.get('host')}/${req.file.path}`;
     }
 
     const user = await User.findByIdAndUpdate(id, updateData, {
@@ -68,25 +68,25 @@ const updateUser = async (req, res) => {
       runValidators: true,
     });
 
-    const usersWithProfilePics = users.map((user) => ({
-      ...user._doc,
-      profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
-        : null,
-    }));
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User data updated successfully", user });
+    const userWithProfilePic = {
+      ...user._doc,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get('host')}/${user.profilePicture}`
+        : null,
+    };
+
+    res.status(200).json({ message: "User data updated successfully", user: userWithProfilePic });
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = updateUser;
+
 
 const deleteUser = async (req, res) => {
   try {
