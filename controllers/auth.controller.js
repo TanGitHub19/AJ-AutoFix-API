@@ -7,7 +7,15 @@ const bcrypt = require("bcrypt");
 
 const userRegistration = async (req, res) => {
   try {
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
+
     const { fullname, username, email, contactNumber, password } = req.body;
+
+    if (!fullname || !username || !email || !contactNumber || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
@@ -16,9 +24,7 @@ const userRegistration = async (req, res) => {
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
-    const profilePicturePath = req.file
-      ? req.file.path
-      : null;
+    const profilePicturePath = req.file ? req.file.path : null;
 
     const newUser = new User({
       fullname,
