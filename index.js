@@ -2,6 +2,7 @@
 require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require('path');
 const bodyParser = require('body-parser');
 const authRoute = require("./routes/authRoutes");
 const userRoute = require("./routes/userRoutes");
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/bookings", bookingRoute);

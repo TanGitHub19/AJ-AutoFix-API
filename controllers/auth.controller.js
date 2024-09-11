@@ -7,9 +7,6 @@ const bcrypt = require("bcrypt");
 
 const userRegistration = async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    console.log("Request file:", req.file);
-
     const { fullname, username, email, contactNumber, password } = req.body;
 
     if (!fullname || !username || !email || !contactNumber || !password) {

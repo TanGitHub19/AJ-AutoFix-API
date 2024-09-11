@@ -1,11 +1,20 @@
 const User = require("../models/user.model");
 const fs = require("fs");
+const path = require('path')
 
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
-    res.status(200).json(users);
+
+    const usersWithProfilePics = users.map(user => ({
+      ...user._doc,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get('host')}/uploads/${path.basename(user.profilePicture)}`
+        : null
+    }));
+
+    res.status(200).json(usersWithProfilePics);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -18,11 +27,18 @@ const getUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not Found" });
     }
-    res.status(200).json(user);
+    const formattedUser = {
+      ...user._doc,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get('host')}/uploads/${path.basename(user.profilePicture)}`
+        : null
+    };
+    res.status(200).json(formattedUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const updateUser = async (req, res) => {
   try {
