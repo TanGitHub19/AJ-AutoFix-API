@@ -24,7 +24,7 @@ app.use("/api/reviews", reviewsRoute);
 app.use("/api/contacts", contactRoutes);
 
 app.get("/", (req, res) => {
-  res.redirect("/api/users");
+  res.redirect("/api/");
 });
 
 

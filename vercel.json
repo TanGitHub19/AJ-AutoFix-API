@@ -1,11 +1,5 @@
 {
   "version": 2,
   "builds": [{ "src": "index.js", "use": "@vercel/node" }],
-  "routes": [
-    { "src": "/api/auth", "dest": "/routes/authRoutes.js" },
-    { "src": "/api/users", "dest": "/routes/userRoutes.js" },
-    { "src": "/api/bookings", "dest": "/routes/bookingRoutes.js" },
-    { "src": "/api/reviews", "dest": "/routes/reviewsRoute.js" },
-    { "src": "/api/contacts", "dest": "/routes/contactRoutes.js" }
-  ]
+  "routes": [{ "src": "/(.*)", "dest": "/index.js" }]
 }
