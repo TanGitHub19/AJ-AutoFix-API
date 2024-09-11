@@ -1,16 +1,16 @@
 const User = require("../models/user.model");
 const fs = require("fs");
-const path = require('path')
+const path = require("path");
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
 
-    const usersWithProfilePics = users.map(user => ({
+    const usersWithProfilePics = users.map((user) => ({
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}/${user.profilePicture}`  
-        : null
+        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
+        : null,
     }));
 
     res.status(200).json(usersWithProfilePics);
@@ -29,8 +29,8 @@ const getUser = async (req, res) => {
     const formattedUser = {
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}/${user.profilePicture}`
-        : null
+        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
+        : null,
     };
     res.status(200).json(formattedUser);
   } catch (error) {
@@ -38,11 +38,10 @@ const getUser = async (req, res) => {
   }
 };
 
-
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, ...updateData } = req.body; 
+    const { role, ...updateData } = req.body;
 
     const requestRole = req.user?.role;
 
@@ -69,6 +68,13 @@ const updateUser = async (req, res) => {
       runValidators: true,
     });
 
+    const usersWithProfilePics = users.map((user) => ({
+      ...user._doc,
+      profilePicture: user.profilePicture
+        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
+        : null,
+    }));
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -82,14 +88,13 @@ const updateUser = async (req, res) => {
 
 module.exports = updateUser;
 
-
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findByIdAndDelete(id);
     if (!user) {
-        return res.status(404).json({ message: "User not Found" });
-      }
+      return res.status(404).json({ message: "User not Found" });
+    }
     res.status(200).json({ message: "User data deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -97,8 +102,8 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
-    getUsers,
-    getUser,
-    updateUser,
-    deleteUser,
+  getUsers,
+  getUser,
+  updateUser,
+  deleteUser,
 };
