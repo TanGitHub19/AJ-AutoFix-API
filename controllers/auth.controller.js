@@ -21,19 +21,17 @@ const userRegistration = async (req, res) => {
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
-    const profilePicturePath = req.file ? req.file.path : null;
-
     const newUser = new User({
       fullname,
       username,
       email,
       contactNumber,
       password: hashPassword,
-      profilePicture: profilePicturePath,
+      profilePicture: req.fileUrl, 
     });
 
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully", fileUrl: req.fileUrl }); // Corrected the key here
   } catch (error) {
     console.error("Error in user registration:", error);
     res.status(500).json({ message: error.message });
