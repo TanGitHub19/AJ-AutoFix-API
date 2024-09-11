@@ -29,7 +29,7 @@ const getUser = async (req, res) => {
     const formattedUser = {
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}${path.basename(user.profilePicture)}`
+        ? `${req.protocol}://${req.get('host')}/${path.basename(user.profilePicture)}`
         : null
     };
     res.status(200).json(formattedUser);
