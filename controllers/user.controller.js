@@ -2,7 +2,6 @@ const User = require("../models/user.model");
 const fs = require("fs");
 const path = require('path')
 
-
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
@@ -10,7 +9,7 @@ const getUsers = async (req, res) => {
     const usersWithProfilePics = users.map(user => ({
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}/uploads/${path.basename(user.profilePicture)}`
+        ? `${req.protocol}://${req.get('host')}/uploads/${path.basename(user.profilePicture).replace(/\\/g, '/')}`
         : null
     }));
 
@@ -27,6 +26,7 @@ const getUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not Found" });
     }
+    // Format profilePicture URL
     const formattedUser = {
       ...user._doc,
       profilePicture: user.profilePicture
