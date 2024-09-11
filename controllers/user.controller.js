@@ -9,7 +9,7 @@ const getUsers = async (req, res) => {
     const usersWithProfilePics = users.map(user => ({
       ...user._doc,
       profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}/uploads/${user.profilePicture}`  
+        ? `${req.protocol}://${req.get('host')}/${user.profilePicture}`  
         : null
     }));
 
