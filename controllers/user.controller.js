@@ -46,9 +46,7 @@ const updateUser = async (req, res) => {
     const requestRole = req.user?.role;
 
     if (requestRole !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "Access denied. Only admins can update user data." });
+      return res.status(403).json({ message: "Access denied. Only admins can update user data." });
     }
 
     if (role && !["user", "admin", "service manager"].includes(role)) {
@@ -60,8 +58,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.file) {
-      const filePath = req.file.path.replace(/\\/g, '/');
-      updateData.profilePicture = `${req.protocol}://${req.get('host')}/${filePath}`;
+      updateData.profilePicture = req.fileUrl;
     }
     
     const user = await User.findByIdAndUpdate(id, updateData, {

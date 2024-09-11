@@ -8,7 +8,13 @@ const { getUsers, getUser, updateUser, deleteUser} = require("../controllers/use
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
 
-userRouter.put("/:id", auth, upload.single('profilePicture'), updateUser);
-
+userRouter.put("/:id", auth, upload.single('profilePicture'), (req, res, next) => {
+    if (req.file) {
+      const fileUrl = `uploads/${req.file.filename.replace(/\\/g, "/")}`;
+      req.fileUrl = fileUrl; 
+    }
+  
+    updateUser(req, res, next);
+  });
 userRouter.delete("/:id", deleteUser); 
 module.exports = userRouter;
