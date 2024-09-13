@@ -10,12 +10,12 @@ router.post(
   "/registration",
   upload.single("profilePicture"),
   (req, res, next) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
+    //if (!req.file) {
+     // return res.status(400).json({ error: "No file uploaded" });
+   // }
 
-    const fileUrl = `uploads/${req.file.filename.replace(/\\/g, "/")}`;
-    req.fileUrl = fileUrl;
+    //const fileUrl = `uploads/${req.file.filename.replace(/\\/g, "/")}`;
+    //req.fileUrl = fileUrl;
 
     userRegistration(req, res, next);
   }
