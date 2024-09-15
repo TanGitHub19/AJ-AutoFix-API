@@ -5,7 +5,7 @@ try {
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "gs://autofix-3cbff.appspot.com",
+    storageBucket: "autofix-3cbff.appspot.com",
   });
 
   console.log("Firebase Admin SDK initialized successfully");
