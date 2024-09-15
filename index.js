@@ -9,10 +9,7 @@ const userRoute = require("./routes/userRoutes");
 const bookingRoute = require("./routes/bookingRoutes");
 const reviewsRoute = require("./routes/reviewsRoute");
 const contactRoutes = require('./routes/contactRoutes');
-
 const app = express();
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -28,7 +25,6 @@ app.use("/api/contacts", contactRoutes);
 app.get("/", (req, res) => {
   res.redirect("/api/");
 });
-
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
     console.log("Connected to Database!");

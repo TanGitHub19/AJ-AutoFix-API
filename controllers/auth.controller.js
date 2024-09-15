@@ -4,6 +4,32 @@ const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { bucket } = require("../config/firebase");
+
+const uploadToFirebase = async (file) => {
+  const fileName = `profile_pictures/${Date.now()}_${file.originalname}`;
+  const fileUpload = bucket.file(fileName);
+
+  const blobStream = fileUpload.createWriteStream({
+    metadata: {
+      contentType: file.mimetype,
+    },
+  });
+
+  return new Promise((resolve, reject) => {
+    blobStream.on("error", (error) => {
+      reject("Error uploading file: " + error.message);
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+      resolve(publicUrl);
+    });
+
+    blobStream.end(file.buffer); 
+  });
+};
+
 
 const userRegistration = async (req, res) => {
   try {
@@ -21,13 +47,16 @@ const userRegistration = async (req, res) => {
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
+    const fileUrl = await uploadToFirebase(req.file);
+
+
     const newUser = new User({
       fullname,
       username,
       email,
       contactNumber,
       password: hashPassword,
-      profilePicture: req.fileUrl, 
+      profilePicture: fileUrl, 
     });
 
     await newUser.save();

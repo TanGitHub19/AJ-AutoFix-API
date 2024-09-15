@@ -1,16 +1,55 @@
 const User = require("../models/user.model");
-const fs = require("fs");
-const path = require("path");
+const { bucket } = require("../config/firebase"); 
+
+const uploadToFirebase = async (file) => {
+  const fileName = `profile_pictures/${Date.now()}_${file.originalname}`;
+  const fileUpload = bucket.file(fileName);
+
+  const blobStream = fileUpload.createWriteStream({
+    metadata: {
+      contentType: file.mimetype,
+    },
+  });
+
+  return new Promise((resolve, reject) => {
+    blobStream.on("error", (error) => {
+      reject("Error uploading file: " + error.message);
+    });
+
+    blobStream.on("finish", () => {
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
+      resolve(publicUrl);
+    });
+
+    blobStream.end(file.buffer); 
+  });
+};
+
+const getFirebaseImageUrl = async (fileName) => {
+  const file = bucket.file(fileName);
+  const [exists] = await file.exists();
+  
+  if (exists) {
+    const [metadata] = await file.getMetadata();
+    return `https://firebasestorage.googleapis.com/v0/b/${metadata.bucket}/o/${encodeURIComponent(fileName)}?alt=media`;
+  } else {
+    return null; 
+  }
+};
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
 
-    const usersWithProfilePics = users.map((user) => ({
-      ...user._doc,
-      profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
-        : null,
+    const usersWithProfilePics = await Promise.all(users.map(async (user) => {
+      const profilePictureUrl = user.profilePicture
+        ? await getFirebaseImageUrl(user.profilePicture)
+        : null;
+
+      return {
+        ...user._doc,
+        profilePicture: profilePictureUrl,
+      };
     }));
 
     res.status(200).json(usersWithProfilePics);
@@ -19,19 +58,25 @@ const getUsers = async (req, res) => {
   }
 };
 
+// Function to get a single user
 const getUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
+    
     if (!user) {
       return res.status(404).json({ message: "User not Found" });
     }
+
+    const profilePictureUrl = user.profilePicture
+      ? await getFirebaseImageUrl(user.profilePicture)
+      : null;
+
     const formattedUser = {
       ...user._doc,
-      profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get("host")}/${user.profilePicture}`
-        : null,
+      profilePicture: profilePictureUrl,
     };
+
     res.status(200).json(formattedUser);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -58,7 +103,9 @@ const updateUser = async (req, res) => {
     }
 
     if (req.file) {
-      updateData.profilePicture = req.fileUrl;
+      const fileName = await uploadToFirebase(req.file);
+      const fileUrl = await getFirebaseImageUrl(fileName);
+      updateData.profilePicture = fileUrl;
     }
     
     const user = await User.findByIdAndUpdate(id, updateData, {
@@ -72,9 +119,7 @@ const updateUser = async (req, res) => {
 
     const userWithProfilePic = {
       ...user._doc,
-      profilePicture: user.profilePicture
-        ? `${req.protocol}://${req.get('host')}/${user.profilePicture}`
-        : null,
+      profilePicture: user.profilePicture,
     };
 
     res.status(200).json({ message: "User data updated successfully", user: userWithProfilePic });
@@ -83,8 +128,6 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 
 const deleteUser = async (req, res) => {
   try {
