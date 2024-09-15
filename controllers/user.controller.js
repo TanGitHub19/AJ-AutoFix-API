@@ -102,8 +102,7 @@ const updateUser = async (req, res) => {
     }
 
     if (req.file) {
-      const fileName = await uploadToFirebase(req.file);
-      const fileUrl = await getFirebaseImageUrl(fileName);
+      const fileUrl = await uploadToFirebase(req.file);
       updateData.profilePicture = fileUrl;
     }
     
