@@ -2,7 +2,7 @@ const express = require("express");
 const userRouter = express.Router();
 const auth = require("../middleware/auth");
 const requireRole = require("../middleware/role");
-const upload = require("../config/file_upload");
+const upload = require("../middleware/file_upload");
 const {
   getUsers,
   getUser,
@@ -13,6 +13,6 @@ const {
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
 
-userRouter.put("/:id", auth, upload.single("profilePicture"), updateUser);
+userRouter.put("/:id", auth, updateUser);
 userRouter.delete("/:id", deleteUser);
 module.exports = userRouter;

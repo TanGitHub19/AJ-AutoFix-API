@@ -1,58 +1,9 @@
 const User = require("../models/user.model");
-const { bucket } = require("../config/firebase"); 
-
-const uploadToFirebase = async (file) => {
-  const fileName = `profile_pictures/${Date.now()}_${file.originalname}`;
-  const fileUpload = bucket.file(fileName);
-
-  const blobStream = fileUpload.createWriteStream({
-    metadata: {
-      contentType: file.mimetype,
-    },
-  });
-
-  return new Promise((resolve, reject) => {
-    blobStream.on("error", (error) => {
-      reject("Error uploading file: " + error.message);
-    });
-
-    blobStream.on("finish", () => {
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
-      resolve(publicUrl);
-    });
-
-    blobStream.end(file.buffer); 
-  });
-};
-
-const getFirebaseImageUrl = async (fileName) => {
-  const file = bucket.file(fileName);
-  const [exists] = await file.exists();
-  
-  if (exists) {
-    const [metadata] = await file.getMetadata();
-    return `https://firebasestorage.googleapis.com/v0/b/${metadata.bucket}/o/${encodeURIComponent(fileName)}?alt=media`;
-  } else {
-    return null; 
-  }
-};
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
-
-    const usersWithProfilePics = await Promise.all(users.map(async (user) => {
-      const profilePictureUrl = user.profilePicture
-        ? await getFirebaseImageUrl(user.profilePicture)
-        : null;
-
-      return {
-        ...user._doc,
-        profilePicture: profilePictureUrl,
-      };
-    }));
-
-    res.status(200).json(usersWithProfilePics);
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -67,16 +18,7 @@ const getUser = async (req, res) => {
       return res.status(404).json({ message: "User not Found" });
     }
 
-    const profilePictureUrl = user.profilePicture
-      ? await getFirebaseImageUrl(user.profilePicture)
-      : null;
-
-    const formattedUser = {
-      ...user._doc,
-      profilePicture: profilePictureUrl,
-    };
-
-    res.status(200).json(formattedUser);
+    res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -100,11 +42,6 @@ const updateUser = async (req, res) => {
     if (role) {
       updateData.role = role;
     }
-
-    if (req.file) {
-      const fileUrl = await uploadToFirebase(req.file);
-      updateData.profilePicture = fileUrl;
-    }
     
     const user = await User.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -115,12 +52,7 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const userWithProfilePic = {
-      ...user._doc,
-      profilePicture: user.profilePicture,
-    };
-
-    res.status(200).json({ message: "User data updated successfully", user: userWithProfilePic });
+    res.status(200).json({ message: "User data updated successfully",  });
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ message: error.message });

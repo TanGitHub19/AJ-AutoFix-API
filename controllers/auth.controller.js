@@ -1,39 +1,11 @@
 const User = require("../models/user.model");
-const upload = require("../config/file_upload");
-const fs = require("fs");
-const path = require("path");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { bucket } = require("../config/firebase");
-
-const uploadToFirebase = async (file) => {
-  const fileName = `profile_pictures/${Date.now()}_${file.originalname}`;
-  const fileUpload = bucket.file(fileName);
-
-  const blobStream = fileUpload.createWriteStream({
-    metadata: {
-      contentType: file.mimetype,
-    },
-  });
-
-  return new Promise((resolve, reject) => {
-    blobStream.on("error", (error) => {
-      reject("Error uploading file: " + error.message);
-    });
-
-    blobStream.on("finish", () => {
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
-      resolve(publicUrl);
-    });
-
-    blobStream.end(file.buffer); 
-  });
-};
-
 
 const userRegistration = async (req, res) => {
   try {
     const { fullname, username, email, contactNumber, password } = req.body;
+    const profilePictureUrl = req.fileUrl;
 
     if (!fullname || !username || !email || !contactNumber || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -47,20 +19,22 @@ const userRegistration = async (req, res) => {
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
-    const fileUrl = await uploadToFirebase(req.file);
-
-
     const newUser = new User({
       fullname,
       username,
       email,
       contactNumber,
       password: hashPassword,
-      profilePicture: fileUrl, 
+      profilePicture: profilePictureUrl,
     });
 
     await newUser.save();
-    res.status(201).json({ message: "User registered successfully", fileUrl: req.fileUrl }); 
+    res
+      .status(201)
+      .json({
+        message: "User registered successfully",
+        fileUrl: profilePictureUrl,
+      });
   } catch (error) {
     console.error("Error in user registration:", error);
     res.status(500).json({ message: error.message });
