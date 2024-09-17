@@ -32,7 +32,9 @@ const updateUser = async (req, res) => {
     const requestRole = req.user?.role;
 
     if (requestRole !== "admin") {
-      return res.status(403).json({ message: "Access denied. Only admins can update user data." });
+      return res
+        .status(403)
+        .json({ message: "Access denied. Only admins can update user data." });
     }
 
     if (role && !["user", "admin", "service manager"].includes(role)) {
@@ -42,7 +44,7 @@ const updateUser = async (req, res) => {
     if (role) {
       updateData.role = role;
     }
-    
+
     const user = await User.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
@@ -52,12 +54,46 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User data updated successfully",  });
+    res.status(200).json({
+      message: "User data updated successfully",
+      user,
+    });
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+
+const userUpdate = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const profilePictureUrl = req.fileUrl; 
+    const updateData = req.body;
+
+    if (profilePictureUrl) {
+      updateData.profilePicture = profilePictureUrl;
+    }
+
+    const user = await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "User profile updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 
 const deleteUser = async (req, res) => {
   try {
@@ -73,6 +109,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
+  userUpdate,
   getUsers,
   getUser,
   updateUser,

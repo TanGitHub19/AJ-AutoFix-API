@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const requireRole = require("../middleware/role");
 const upload = require("../middleware/file_upload");
 const {
+  userUpdate,
   getUsers,
   getUser,
   updateUser,
@@ -12,7 +13,7 @@ const {
 
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
-
+userRouter.put("/user/:id", auth, requireRole('user'), userUpdate);
 userRouter.put("/:id", auth, updateUser);
 userRouter.delete("/:id", deleteUser);
 module.exports = userRouter;
