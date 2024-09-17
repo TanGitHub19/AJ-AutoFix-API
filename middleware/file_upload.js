@@ -15,7 +15,7 @@ const uploadFile = async (req, res, next) => {
   try {
     const file = req.file;
     if (!file) {
-      return res.status(400).send("No file uploaded.");
+      return next();
     }
 
     const fileName = `${Date.now()}-${file.originalname}`;

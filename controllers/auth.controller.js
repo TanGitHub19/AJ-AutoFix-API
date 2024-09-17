@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const userRegistration = async (req, res) => {
   try {
     const { fullname, username, email, contactNumber, password } = req.body;
-    const profilePictureUrl = req.fileUrl;
+    const profilePictureUrl = req.fileUrl || null; 
 
     if (!fullname || !username || !email || !contactNumber || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -29,17 +29,15 @@ const userRegistration = async (req, res) => {
     });
 
     await newUser.save();
-    res
-      .status(201)
-      .json({
-        message: "User registered successfully",
-        fileUrl: profilePictureUrl,
-      });
+    res.status(201).json({
+      message: "User registered successfully"
+    });
   } catch (error) {
     console.error("Error in user registration:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const userLogin = async (req, res) => {
   try {
