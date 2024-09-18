@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const auth = require('../middleware/auth')
 const { upload, uploadFile } = require("../middleware/file_upload");
 const {
   userLogout,
@@ -15,7 +16,7 @@ router.post(
 );
 
 router.post("/login", userLogin);
-router.post("/logout", userLogout);
+router.post("/logout", auth, userLogout);
 
 
 module.exports = router;
