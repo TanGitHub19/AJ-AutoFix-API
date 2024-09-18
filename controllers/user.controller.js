@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const mongoose = require('mongoose');
 
 const getUsers = async (req, res) => {
   try {
@@ -21,6 +22,20 @@ const getUser = async (req, res) => {
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+const getUsersByAuth = async (req, res) => {
+  try{
+    const authenticatedUserId = req.user._id;
+    const userId = new mongoose.Types.ObjectId(authenticatedUserId);
+    const user = await User.findById(userId);
+    if(!user){
+      res.status(404).json('User not found')
+    }
+    res.status(200).json(user)
+  } catch (error) {
+    res.status(500).json({message: error.message})
   }
 };
 
@@ -109,6 +124,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
+  getUsersByAuth,
   userUpdate,
   getUsers,
   getUser,
