@@ -13,7 +13,7 @@ const {
 
 userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
-userRouter.put("/user/:id", auth, requireRole('user'), userUpdate);
+userRouter.put("/update", auth, requireRole('user'), userUpdate);
 userRouter.put("/:id", auth, updateUser);
 userRouter.delete("/:id", deleteUser);
 module.exports = userRouter;

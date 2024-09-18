@@ -64,18 +64,17 @@ const updateUser = async (req, res) => {
   }
 };
 
-
 const userUpdate = async (req, res) => {
   try {
-    const { id } = req.params; 
-    const profilePictureUrl = req.fileUrl; 
-    const updateData = req.body;
+    const authenticatedUserId = req.user._id; 
+    const profilePictureUrl = req.fileUrl;
+    const updateData = req.body; 
 
     if (profilePictureUrl) {
       updateData.profilePicture = profilePictureUrl;
     }
 
-    const user = await User.findByIdAndUpdate(id, updateData, {
+    const user = await User.findByIdAndUpdate(authenticatedUserId, updateData, {
       new: true,
       runValidators: true,
     });
@@ -93,6 +92,7 @@ const userUpdate = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 const deleteUser = async (req, res) => {

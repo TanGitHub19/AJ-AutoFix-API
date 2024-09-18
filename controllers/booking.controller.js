@@ -71,32 +71,22 @@ const getAllAcceptedBookingById = async (req, res) => {
 
 const createBooking = async (req, res) => {
   try {
-    const { userId, ...bookingData } = req.body;
-    const authenticatedUserId = req.user._id;
+    const authenticatedUserId = req.user._id; 
+    const bookingData = req.body; 
 
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required" });
-    }
-
-    if (userId.toString() !== authenticatedUserId.toString()) {
-      return res
-        .status(403)
-        .json({ message: "You are not authorized to book for this user" });
-    }
-
-    const user = await User.findById(userId);
+    const user = await User.findById(authenticatedUserId);
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const booking = new Booking({ userId, ...bookingData });
+    const booking = new Booking({ userId: authenticatedUserId, ...bookingData });
     await booking.save();
+
     res.status(201).json(booking);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 
 const updateBooking = async (req, res) => {
