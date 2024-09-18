@@ -77,7 +77,18 @@ const userLogin = async (req, res) => {
   }
 };
 
+const userLogout = async (req, res) => {
+  try{
+  res.status(200).json({message: 'Logout Successful'})
+  } catch (e){
+    console.error('Error during logout:', error);
+    res.status(500).json({message: 'Logout Failed'})
+
+  }
+}
+
 module.exports = {
+  userLogout,
   userRegistration,
   userLogin,
 };
