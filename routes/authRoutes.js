@@ -17,7 +17,7 @@ router.post(
 
 router.post("/login", userLogin);
 
-app.post('/logout', auth , userLogout);
+app.post('/logout', userLogout);
 
 
 module.exports = router;
