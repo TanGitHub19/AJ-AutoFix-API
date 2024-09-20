@@ -1,6 +1,7 @@
 const Booking = require("../models/booking.model");
 const mongoose = require("mongoose");
 const User = require("../models/user.model");
+const sendNotification = require('../services/notification')
 
 const getBookingById = async (req, res) => {
   try {
@@ -120,19 +121,35 @@ const deleteBooking = async (req, res) => {
 const acceptBooking = async (req, res) => {
   try {
     const { id } = req.params;
+
     const booking = await Booking.findByIdAndUpdate(
       id,
       { status: "Approved" },
       { new: true }
-    ).populate("userId", "fullname"); 
+    ).populate("userId", "fullname externalUserId"); 
+
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+
+    const { userId } = booking;
+    const userFullName = userId.fullname;
+    const userExternalId = userId.externalUserId; 
+
+    if (userExternalId) {
+      await sendNotification(
+        `Hello ${userFullName}, your booking has been approved!`,
+        [userExternalId] 
+      );
+    }
+
     res.status(200).json({ message: "Booking accepted", booking });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 const rejectBooking = async (req, res) => {
   try {
