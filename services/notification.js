@@ -14,7 +14,7 @@ const getUserSubscriptionStatus = async (userId) => {
     return response.data.is_subscribed; 
   } catch (error) {
     console.error("Error fetching subscription status:", error.message);
-    return false; // Default to not subscribed in case of error
+    return false; 
   }
 };
 
@@ -23,7 +23,7 @@ const notification = async (message, userId) => {
 
   if (!isSubscribed) {
     console.log(`User ${userId} is not subscribed to notifications.`);
-    return; // Exit if not subscribed
+    return; 
   }
 
   try {
