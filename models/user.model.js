@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
-    externalUserId: { type: String, 
-      unique: true, 
-      required: true 
-    }, 
     profilePicture: {
       type: String,
     },

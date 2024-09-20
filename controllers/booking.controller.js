@@ -1,7 +1,7 @@
 const Booking = require("../models/booking.model");
 const mongoose = require("mongoose");
 const User = require("../models/user.model");
-const sendNotification = require('../services/notification')
+const {notification} = require("../services/notification");
 
 const getBookingById = async (req, res) => {
   try {
@@ -21,7 +21,7 @@ const getBookingById = async (req, res) => {
 
 const getAllBooking = async (req, res) => {
   try {
-    const bookings = await Booking.find({}).populate("userId", "fullname"); 
+    const bookings = await Booking.find({}).populate("userId", "fullname");
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -38,14 +38,14 @@ const getAllPendingBooking = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 const getAllAcceptedBooking = async (req, res) => {
   try {
     const bookings = await Booking.find({ status: "Approved" }).populate(
       "userId",
       "fullname"
-    ); 
+    );
     res.status(200).json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -72,15 +72,18 @@ const getAllAcceptedBookingById = async (req, res) => {
 
 const createBooking = async (req, res) => {
   try {
-    const authenticatedUserId = req.user._id; 
-    const bookingData = req.body; 
+    const authenticatedUserId = req.user._id;
+    const bookingData = req.body;
 
     const user = await User.findById(authenticatedUserId);
     if (!user) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const booking = new Booking({ userId: authenticatedUserId, ...bookingData });
+    const booking = new Booking({
+      userId: authenticatedUserId,
+      ...bookingData,
+    });
     await booking.save();
 
     res.status(201).json(booking);
@@ -88,7 +91,6 @@ const createBooking = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 const updateBooking = async (req, res) => {
   try {
@@ -126,7 +128,7 @@ const acceptBooking = async (req, res) => {
       id,
       { status: "Approved" },
       { new: true }
-    ).populate("userId", "fullname externalUserId"); 
+    ).populate("userId", "fullname");
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -134,21 +136,23 @@ const acceptBooking = async (req, res) => {
 
     const { userId } = booking;
     const userFullName = userId.fullname;
-    const userExternalId = userId.externalUserId; 
+    const userExternalId = userId._id.toString(); // Ensure it's a string
 
-    if (userExternalId) {
-      await sendNotification(
-        `Hello ${userFullName}, your booking has been approved!`,
-        [userExternalId] 
-      );
-    }
+    // Log the user information
+    console.log(`User Full Name: ${userFullName}`);
+    console.log(`User External ID: ${userExternalId}`);
+
+    await notification(
+      `Hello ${userFullName}, your booking has been approved!`,
+      userExternalId // Pass the userExternalId directly
+    );
 
     res.status(200).json({ message: "Booking accepted", booking });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error sending notification:", error.response ? error.response.data : error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 
 const rejectBooking = async (req, res) => {
@@ -158,7 +162,7 @@ const rejectBooking = async (req, res) => {
       id,
       { status: "Rejected" },
       { new: true }
-    ).populate("userId", "fullname"); 
+    ).populate("userId", "fullname");
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
