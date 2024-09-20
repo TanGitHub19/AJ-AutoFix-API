@@ -81,32 +81,28 @@ const updateUser = async (req, res) => {
 
 const userUpdate = async (req, res) => {
   try {
-    const authenticatedUserId = req.user._id; 
-    const profilePictureUrl = req.fileUrl;
+    const userId = req.params.id; 
     const updateData = req.body; 
 
-    if (profilePictureUrl) {
-      updateData.profilePicture = profilePictureUrl;
-    }
-
-    const user = await User.findByIdAndUpdate(authenticatedUserId, updateData, {
+    const user = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
       runValidators: true,
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     res.status(200).json({
-      message: "User profile updated successfully",
+      message: 'User profile updated successfully',
       user,
     });
   } catch (error) {
-    console.error("Error updating user profile:", error);
+    console.error('Error updating user profile:', error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
