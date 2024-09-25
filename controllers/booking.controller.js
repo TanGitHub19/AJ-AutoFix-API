@@ -9,20 +9,50 @@ const getBookingById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid booking ID format" });
     }
-    const booking = await Booking.findById(id).populate("userId", "fullname");
+    const booking = await Booking.findById(id).populate("userId", "fullname email profilePicture");
+
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
-    res.status(200).json(booking);
+
+    const formattedBooking = {
+      id: booking._id,
+      userId: booking.userId ? booking.userId._id : null,  
+      user: booking.userId ? {
+        fullname: booking.userId.fullname,
+      } : null, 
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status
+    };
+
+    res.status(200).json(formattedBooking);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+
 const getAllBooking = async (req, res) => {
   try {
-    const bookings = await Booking.find({}).populate("userId", "fullname");
-    res.status(200).json(bookings);
+    const bookings = await Booking.find({}).populate("userId", "fullname email profilePicture");
+
+    const getBookings = bookings.map(booking => ({
+      id: booking._id,
+      userId: booking.userId ? booking.userId._id : null,  
+      user: booking.userId ? {
+        fullname: booking.userId.fullname,
+      } : null,
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status
+    }));
+
+    res.status(200).json(getBookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -136,15 +166,11 @@ const acceptBooking = async (req, res) => {
 
     const { userId } = booking;
     const userFullName = userId.fullname;
-    const userExternalId = userId._id.toString(); // Ensure it's a string
-
-    // Log the user information
-    console.log(`User Full Name: ${userFullName}`);
-    console.log(`User External ID: ${userExternalId}`);
+    const userExternalId = userId._id.toString();
 
     await notification(
       `Hello ${userFullName}, your booking has been approved!`,
-      userExternalId // Pass the userExternalId directly
+      userExternalId 
     );
 
     res.status(200).json({ message: "Booking accepted", booking });
