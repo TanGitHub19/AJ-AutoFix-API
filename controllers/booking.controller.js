@@ -120,7 +120,7 @@ const getAllAcceptedBookingById = async (req, res) => {
 
 const createBooking = async (req, res) => {
   try {
-    const authenticatedUserId = req.user._id;
+    const authenticatedUserId = mongoose.Types.ObjectId(req.user.id);
     const bookingData = req.body;
 
     const user = await User.findById(authenticatedUserId);
