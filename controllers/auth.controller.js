@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const userRegistration = async (req, res) => {
   try {
     const { fullname, username, email, contactNumber, password } = req.body;
-    const profilePictureUrl = req.fileUrl || null; 
+    const profilePictureUrl = req.fileUrl || null;
 
     if (!fullname || !username || !email || !contactNumber || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -30,14 +30,13 @@ const userRegistration = async (req, res) => {
 
     await newUser.save();
     res.status(201).json({
-      message: "User registered successfully"
+      message: "User registered successfully",
     });
   } catch (error) {
     console.error("Error in user registration:", error);
     res.status(500).json({ message: error.message });
   }
 };
-
 
 const userLogin = async (req, res) => {
   try {
@@ -62,7 +61,7 @@ const userLogin = async (req, res) => {
       message: "Login successful",
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         fullname: user.fullname,
         username: user.username,
         email: user.email,
@@ -78,14 +77,13 @@ const userLogin = async (req, res) => {
 };
 
 const userLogout = async (req, res) => {
-  try{
-  res.status(200).json({message: 'Logout Successful'})
-  } catch (e){
-    console.error('Error during logout:', error);
-    res.status(500).json({message: 'Logout Failed'})
-
+  try {
+    res.status(200).json({ message: "Logout Successful" });
+  } catch (e) {
+    console.error("Error during logout:", error);
+    res.status(500).json({ message: "Logout Failed" });
   }
-}
+};
 
 module.exports = {
   userLogout,
