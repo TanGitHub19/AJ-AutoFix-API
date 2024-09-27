@@ -16,7 +16,7 @@ const {
   getAllAcceptedBookingById,
 } = require("../controllers/booking.controller");
 
-bookingRouter.get("/bookings/:id", validateObjectId, getBookingById);
+bookingRouter.get("/bookings/get/:id", validateObjectId, getBookingById);
 bookingRouter.get("/bookings/", getAllBooking);
 
 bookingRouter.get(
