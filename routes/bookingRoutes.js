@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/objectId");
 const requireRole = require("../middleware/role");
 const {
+  getUserBookings,
   getAllPendingBooking,
   getBookingById,
   getAllBooking,
@@ -16,7 +17,11 @@ const {
   getAllAcceptedBookingById,
 } = require("../controllers/booking.controller");
 
-bookingRouter.get("/bookings/get/:id", getBookingById);
+
+bookingRouter.get('/bookings', auth, getUserBookings);
+
+
+bookingRouter.get("/bookings/get/:id", auth, getBookingById);
 bookingRouter.get("/bookings/", getAllBooking);
 
 bookingRouter.get(

@@ -61,6 +61,38 @@ const getAllBooking = async (req, res) => {
   }
 };
 
+const getUserBookings = async (req, res) => {
+  try {
+    const authenticatedUserId = req.user._id; 
+
+    const bookings = await Booking.find({ userId: authenticatedUserId }).populate("userId", "fullname");
+
+    if (!bookings || bookings.length === 0) {
+      return res.status(404).json({ message: "No bookings found for this user" });
+    }
+
+    const formattedBookings = bookings.map((booking) => ({
+      id: booking._id,
+      userId: booking.userId ? booking.userId._id : null,
+      user: booking.userId
+        ? {
+            fullname: booking.userId.fullname,
+          }
+        : null,
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status,
+    }));
+
+    res.status(200).json(formattedBookings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 const getAllPendingBooking = async (req, res) => {
   try {
     const bookings = await Booking.find({ status: "Pending" }).populate(
@@ -252,6 +284,7 @@ const rejectBooking = async (req, res) => {
 
 
 module.exports = {
+  getUserBookings,
   getAllPendingBooking,
   getBookingById,
   getAllBooking,
