@@ -3,7 +3,7 @@ const User = require("../models/user.model")
 
 const createReviews = async (req, res) => {
   try {
-    const authenticatedUserId = req.user._id; 
+    const authenticatedUserId = req.user._id;
     const { rating, content } = req.body;
 
     if (!rating || rating < 1 || rating > 5) {
@@ -15,15 +15,20 @@ const createReviews = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const existingReview = await Reviews.findOne({ userId: authenticatedUserId });
-    if (existingReview) {
-      return res.status(400).json({ success: false, message: "User has already submitted a review" });
+    let review = await Reviews.findOne({ userId: authenticatedUserId });
+    let isUpdate = false;
+
+    if (review) {
+      review.rating = rating;
+      review.content = content;
+      isUpdate = true;
+    } else {
+      review = new Reviews({ userId: authenticatedUserId, rating, content });
     }
 
-    const review = new Reviews({ userId: authenticatedUserId, rating, content });
     await review.save();
 
-    return res.status(201).json({ success: true, review });
+    return res.status(201).json({ success: true, review, isUpdate });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
