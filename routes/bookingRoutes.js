@@ -18,12 +18,11 @@ const {
 } = require("../controllers/booking.controller");
 
 
-bookingRouter.get('/bookings', auth, getUserBookings);
 
-
-bookingRouter.get("/bookings/get/:id", auth, getBookingById);
 bookingRouter.get("/bookings/", getAllBooking);
+bookingRouter.get('/bookings/user', auth, getUserBookings);
 
+bookingRouter.get("/bookings/get/:id", auth ,getBookingById);
 bookingRouter.get(
   "/admin/bookings/accepted",
   auth,
