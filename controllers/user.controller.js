@@ -38,11 +38,18 @@ const getUsersByAuth = async (req, res) => {
     res.status(500).json({message: error.message})
   }
 };
-
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { role, ...updateData } = req.body; 
+    let { role, ...updateData } = req.body;
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Only admins can update users." });
+    }
+
+    if (role) {
+      updateData.role = role;
+    }
 
     const user = await User.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -62,6 +69,8 @@ const updateUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
 
 const userUpdate = async (req, res) => {
   try {
