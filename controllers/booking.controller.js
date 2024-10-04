@@ -61,9 +61,6 @@ const getAllBooking = async (req, res) => {
   }
 };
 
-
-
-
 const getAllPendingBooking = async (req, res) => {
   try {
     const bookings = await Booking.find({ status: "Pending" }).populate(
@@ -97,7 +94,21 @@ const getAllAcceptedBooking = async (req, res) => {
       "userId",
       "fullname"
     );
-    res.status(200).json(bookings);
+    const acceptedBooking = bookings.map((booking) => ({
+      id: booking._id,
+      userId: booking.userId ? booking.userId._id : null,
+      user: booking.userId
+        ? {
+            fullname: booking.userId.fullname,
+          }
+        : null,
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status,
+    }));
+    res.status(200).json(acceptedBooking);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -133,7 +144,12 @@ const createBooking = async (req, res) => {
 
     const existingBooking = await Booking.findOne({ time, date });
     if (existingBooking) {
-      return res.status(400).json({ message: "The selected time is already occupied. Please choose another time." });
+      return res
+        .status(400)
+        .json({
+          message:
+            "The selected time is already occupied. Please choose another time.",
+        });
     }
 
     const booking = new Booking({
@@ -142,7 +158,7 @@ const createBooking = async (req, res) => {
       vehicleType,
       time,
       date,
-      status
+      status,
     });
 
     await booking.save();
@@ -217,7 +233,9 @@ const acceptBooking = async (req, res) => {
       userExternalId
     );
 
-    res.status(200).json({ message: "Booking accepted", booking: acceptedBooking });
+    res
+      .status(200)
+      .json({ message: "Booking accepted", booking: acceptedBooking });
   } catch (error) {
     console.error(
       "Error sending notification:",
@@ -227,11 +245,10 @@ const acceptBooking = async (req, res) => {
   }
 };
 
-
 const rejectBooking = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const booking = await Booking.findByIdAndUpdate(
       id,
       { status: "Rejected" },
@@ -257,7 +274,9 @@ const rejectBooking = async (req, res) => {
       status: booking.status,
     };
 
-    res.status(200).json({ message: "Booking rejected", booking: rejectedBooking });
+    res
+      .status(200)
+      .json({ message: "Booking rejected", booking: rejectedBooking });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -265,12 +284,16 @@ const rejectBooking = async (req, res) => {
 
 const getUserBookings = async (req, res) => {
   try {
-    const authenticatedUserId = req.user._id; 
+    const authenticatedUserId = req.user._id;
 
-    const bookings = await Booking.find({ userId: authenticatedUserId }).populate("userId", "fullname");
+    const bookings = await Booking.find({
+      userId: authenticatedUserId,
+    }).populate("userId", "fullname");
 
     if (!bookings || bookings.length === 0) {
-      return res.status(404).json({ message: "No bookings found for this user" });
+      return res
+        .status(404)
+        .json({ message: "No bookings found for this user" });
     }
 
     const formattedBookings = bookings.map((booking) => ({
@@ -305,7 +328,9 @@ const completedBooking = async (req, res) => {
     }
 
     if (booking.status !== "Approved") {
-      return res.status(400).json({ message: "Booking is not in an approved state" });
+      return res
+        .status(400)
+        .json({ message: "Booking is not in an approved state" });
     }
 
     booking.status = "Completed";
@@ -326,13 +351,13 @@ const completedBooking = async (req, res) => {
       status: booking.status,
     };
 
-    res.status(200).json({ message: "Booking completed", booking: completedBooking });
+    res
+      .status(200)
+      .json({ message: "Booking completed", booking: completedBooking });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
-
 
 module.exports = {
   completedBooking,
