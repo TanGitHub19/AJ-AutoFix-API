@@ -294,7 +294,48 @@ const getUserBookings = async (req, res) => {
   }
 };
 
+const completedBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const booking = await Booking.findById(id).populate("userId", "fullname");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    if (booking.status !== "Approved") {
+      return res.status(400).json({ message: "Booking is not in an approved state" });
+    }
+
+    booking.status = "Completed";
+    await booking.save();
+
+    const completedBooking = {
+      id: booking._id,
+      userId: booking.userId ? booking.userId._id : null,
+      user: booking.userId
+        ? {
+            fullname: booking.userId.fullname,
+          }
+        : null,
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status,
+    };
+
+    res.status(200).json({ message: "Booking completed", booking: completedBooking });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 module.exports = {
+  completedBooking,
   getUserBookings,
   getAllPendingBooking,
   getBookingById,

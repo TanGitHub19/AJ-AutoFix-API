@@ -4,6 +4,7 @@ const auth = require("../middleware/auth");
 const validateObjectId = require("../middleware/objectId");
 const requireRole = require("../middleware/role");
 const {
+  completedBooking,
   getUserBookings,
   getAllPendingBooking,
   getBookingById,
@@ -63,6 +64,14 @@ bookingRouter.put(
   requireRole("admin", "service manager"),
   validateObjectId,
   rejectBooking
+);
+
+bookingRouter.put(
+  "/bookings/:id/complete",
+  auth,
+  requireRole("admin", "service manager"),
+  validateObjectId,
+  completedBooking
 );
 
 bookingRouter.delete("/bookings/:id", auth, validateObjectId, deleteBooking);
