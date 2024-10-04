@@ -16,7 +16,7 @@ userRouter.get("/", getUsers);
 userRouter.get("/:id", getUser);
 userRouter.get("/:id", getUser);
 userRouter.get("/user/getUser", auth, getUsersByAuth);
-userRouter.put("/update/:id", auth, requireRole('user'), userUpdate);
+userRouter.put("/update/:id", auth, userUpdate);
 userRouter.put("/admin/:id", auth, updateUser);
 userRouter.delete("/:id", deleteUser);
 module.exports = userRouter;
