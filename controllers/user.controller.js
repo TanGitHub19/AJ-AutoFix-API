@@ -40,7 +40,7 @@ const getUsersByAuth = async (req, res) => {
 };
 const updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const userId = req.params.id; 
     let { role, ...updateData } = req.body;
 
     if (req.user.role !== 'admin') {
@@ -51,7 +51,7 @@ const updateUser = async (req, res) => {
       updateData.role = role;
     }
 
-    const user = await User.findByIdAndUpdate(id, updateData, {
+    const user = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
       runValidators: true,
     });
