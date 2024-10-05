@@ -16,6 +16,11 @@ const userRegistration = async (req, res) => {
       return res.status(400).json({ message: "Email already exists" });
     }
 
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ message: "Username already exists" });
+    }
+
     const saltRounds = 10;
     const hashPassword = await bcrypt.hash(password, saltRounds);
 
