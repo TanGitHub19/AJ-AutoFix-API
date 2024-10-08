@@ -6,6 +6,9 @@ const {
   userLogout,
   userRegistration,
   userLogin,
+  userVerification,
+  requestOtp,
+  resetPasswordWithOtp
 } = require("../controllers/auth.controller");
 
 router.post(
@@ -15,6 +18,9 @@ router.post(
   userRegistration
 );
 
+router.post("/request-otp", requestOtp);
+router.post("/reset-password-otp", resetPasswordWithOtp);
+router.get('/verify-email', userVerification);
 router.post("/login", userLogin);
 router.post("/logout", auth, userLogout);
 

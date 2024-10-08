@@ -9,7 +9,8 @@ const adminDetails = {
   email: 'admin@gmail.com',
   contactNumber: '1234567890',
   password: '123456789', 
-  role: 'admin', 
+  role: 'admin',
+  isVerified: true,
 };
 
 const createAdmin = async () => {
