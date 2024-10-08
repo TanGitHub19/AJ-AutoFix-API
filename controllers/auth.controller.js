@@ -117,6 +117,37 @@ const userVerification = async (req, res) => {
     res.status(400).send("Invalid or expired token");
   }
 };
+
+
+const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found with this email." });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: "User is already verified." });
+    }
+
+    const verificationToken = generateVerificationToken(email);
+    user.verificationToken = verificationToken;
+    await user.save({ validateBeforeSave: false });
+
+    await sendVerificationEmail(email, verificationToken);
+    res.status(200).json({
+      status: "success",
+      message: "Verification email resent! Please check your inbox.",
+    });
+  } catch (error) {
+    console.error("Error in resending verification email:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
 const userLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -226,6 +257,7 @@ const resetPasswordWithOtp = async (req, res) => {
 };
 
 module.exports = {
+  resendVerificationEmail,
   userLogout,
   userRegistration,
   userLogin,

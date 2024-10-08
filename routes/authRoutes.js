@@ -3,6 +3,7 @@ const router = express.Router();
 const auth = require('../middleware/auth')
 const { upload, uploadFile } = require("../middleware/file_upload");
 const {
+  resendVerificationEmail,
   userLogout,
   userRegistration,
   userLogin,
@@ -18,6 +19,7 @@ router.post(
   userRegistration
 );
 
+router.post('/resend-verification', resendVerificationEmail);
 router.post("/request-otp", requestOtp);
 router.post("/reset-password-otp", resetPasswordWithOtp);
 router.get('/verify-email', userVerification);
