@@ -23,18 +23,15 @@ const createReviews = async (req, res) => {
     let review = await Reviews.findOne({ userId: authenticatedUserId });
     let isUpdate = false;
 
-    let date = new Date();
-    console.log(date);
+   
 
     if (review) {
-      review.date = date;
       review.rating = rating;
       review.content = content;
       isUpdate = true;
     } else {
       review = new Reviews({
         userId: authenticatedUserId,
-        date,
         rating,
         content,
       });
