@@ -7,23 +7,37 @@ const createReviews = async (req, res) => {
     const { rating, content } = req.body;
 
     if (!rating || rating < 1 || rating > 5) {
-      return res.status(400).json({ success: false, message: "Invalid rating. Must be between 1 and 5." });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid rating. Must be between 1 and 5.",
+      });
     }
 
     const user = await User.findById(authenticatedUserId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     let review = await Reviews.findOne({ userId: authenticatedUserId });
     let isUpdate = false;
 
+    let date = new Date();
+    console.log(date);
+
     if (review) {
+      review.date = date;
       review.rating = rating;
       review.content = content;
       isUpdate = true;
     } else {
-      review = new Reviews({ userId: authenticatedUserId, rating, content });
+      review = new Reviews({
+        userId: authenticatedUserId,
+        date,
+        rating,
+        content,
+      });
     }
 
     await review.save();
@@ -36,7 +50,10 @@ const createReviews = async (req, res) => {
 
 const getAllReviews = async (req, res) => {
   try {
-    const reviews = await Reviews.find({}).populate("userId", "fullname profilePicture", );
+    const reviews = await Reviews.find({}).populate(
+      "userId",
+      "fullname profilePicture"
+    );
     return res.status(200).json({ success: true, reviews });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -45,5 +62,5 @@ const getAllReviews = async (req, res) => {
 
 module.exports = {
   createReviews,
-  getAllReviews
+  getAllReviews,
 };

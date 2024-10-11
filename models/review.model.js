@@ -13,6 +13,11 @@ const reviewsSchema = new mongoose.Schema({
       message: "User not found"
     }
   },
+  date: {
+    type: String,
+    required: true,
+  
+  },
   rating: {
     type: Number,
     required: true,
