@@ -1,5 +1,5 @@
 const Reviews = require("../models/review.model");
-const User = require("../models/user.model")
+const User = require("../models/user.model");
 
 const createReviews = async (req, res) => {
   try {
@@ -36,7 +36,7 @@ const createReviews = async (req, res) => {
 
 const getAllReviews = async (req, res) => {
   try {
-    const reviews = await Reviews.find({}).populate("userId", "fullname");
+    const reviews = await Reviews.find({}).populate("userId", "fullname profilePicture", );
     return res.status(200).json({ success: true, reviews });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
