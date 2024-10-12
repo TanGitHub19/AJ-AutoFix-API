@@ -80,6 +80,7 @@ const getAllPendingBooking = async (req, res) => {
       time: booking.time,
       date: booking.date,
       status: booking.status,
+      createdAt: booking.createdAt,
     }));
 
     res.status(200).json(pendingBookings);
@@ -144,12 +145,10 @@ const createBooking = async (req, res) => {
 
     const existingBooking = await Booking.findOne({ time, date });
     if (existingBooking) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "The selected time is already occupied. Please choose another time.",
-        });
+      return res.status(400).json({
+        message:
+          "The selected time is already occupied. Please choose another time.",
+      });
     }
 
     const booking = new Booking({
@@ -163,7 +162,18 @@ const createBooking = async (req, res) => {
 
     await booking.save();
 
-    res.status(201).json(booking);
+    res
+      .status(201)
+      .json({
+        id: booking._id,
+        userId: booking.userId,
+        serviceType: booking.serviceType,
+        vehicleType: booking.vehicleType,
+        time: booking.time,
+        date: booking.date,
+        status: booking.status,
+        createdAt: booking.createdAt,
+      });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
