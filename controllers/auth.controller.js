@@ -60,6 +60,7 @@ const userRegistration = async (req, res) => {
       password: hashPassword,
       profilePicture: profilePictureUrl,
       verificationToken,
+      external_user_id: email 
     });
 
     await newUser.save();
@@ -101,10 +102,8 @@ const userVerification = async (req, res) => {
     }
 
     user.isVerified = true;
-    console.log("Updating user to verified:", user);
     user.verificationToken = null;
     await user.save();
-    console.log("User after save:", user);
 
     if (user.isVerified) {
       console.log("Email verified successfully!", user.isVerified);
@@ -182,6 +181,7 @@ const userLogin = async (req, res) => {
         contactNumber: user.contactNumber,
         profilePicture: user.profilePicture,
         role: user.role,
+        external_user_id: user.external_user_id 
       },
     });
   } catch (error) {
