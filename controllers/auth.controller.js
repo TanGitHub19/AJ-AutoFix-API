@@ -60,7 +60,6 @@ const userRegistration = async (req, res) => {
       password: hashPassword,
       profilePicture: profilePictureUrl,
       verificationToken,
-      external_user_id: email 
     });
 
     await newUser.save();
@@ -181,7 +180,6 @@ const userLogin = async (req, res) => {
         contactNumber: user.contactNumber,
         profilePicture: user.profilePicture,
         role: user.role,
-        external_user_id: user.external_user_id 
       },
     });
   } catch (error) {
