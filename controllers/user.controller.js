@@ -1,14 +1,28 @@
 const User = require("../models/user.model");
+const Booking = require("../models/booking.model");
 const mongoose = require('mongoose');
 
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find({});
-    res.status(200).json(users);
+    const users = await User.find({})
+      .lean() 
+      .exec(); 
+    
+    const userIds = users.map(user => user._id);
+
+    const bookings = await Booking.find({ userId: { $in: userIds } }).exec();
+
+    const usersWithBookings = users.map(user => {
+      const userBookings = bookings.filter(booking => booking.userId.toString() === user._id.toString());
+      return { ...user, bookings: userBookings };
+    });
+
+    res.status(200).json(usersWithBookings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const getUser = async (req, res) => {
   try {
