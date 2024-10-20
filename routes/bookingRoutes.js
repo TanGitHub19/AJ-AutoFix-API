@@ -16,6 +16,8 @@ const {
   rejectBooking,
   getAllAcceptedBooking,
   getAllAcceptedBookingById,
+  getNewBookingCount,
+  markBookingsAsViewed
 } = require("../controllers/booking.controller");
 
 
@@ -75,5 +77,9 @@ bookingRouter.put(
 );
 
 bookingRouter.delete("/bookings/:id", auth, validateObjectId, deleteBooking);
+
+bookingRouter.get('/new/count', getNewBookingCount);
+
+bookingRouter.put('/viewed', markBookingsAsViewed);
 
 module.exports = bookingRouter;

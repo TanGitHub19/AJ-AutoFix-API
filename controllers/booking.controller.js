@@ -143,7 +143,11 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const existingBooking = await Booking.findOne({ time, date });
+    const existingBooking = await Booking.findOne({
+      time,
+      date,
+      status: { $nin: ["Rejected", "Completed"] },
+    });
     if (existingBooking) {
       return res.status(400).json({
         message:
@@ -162,18 +166,16 @@ const createBooking = async (req, res) => {
 
     await booking.save();
 
-    res
-      .status(201)
-      .json({
-        id: booking._id,
-        userId: booking.userId,
-        serviceType: booking.serviceType,
-        vehicleType: booking.vehicleType,
-        time: booking.time,
-        date: booking.date,
-        status: booking.status,
-        createdAt: booking.createdAt,
-      });
+    res.status(201).json({
+      id: booking._id,
+      userId: booking.userId,
+      serviceType: booking.serviceType,
+      vehicleType: booking.vehicleType,
+      time: booking.time,
+      date: booking.date,
+      status: booking.status,
+      createdAt: booking.createdAt,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -234,14 +236,6 @@ const acceptBooking = async (req, res) => {
       date: booking.date,
       status: booking.status,
     };
-
-    const { fullname: userFullName } = booking.userId;
-    const userExternalId = booking.userId._id.toString();
-
-    await notification(
-      `Hello ${userFullName}, your booking has been approved!`,
-      userExternalId
-    );
 
     res
       .status(200)
@@ -369,6 +363,26 @@ const completedBooking = async (req, res) => {
   }
 };
 
+const getNewBookingCount = async (req, res) => {
+  try {
+    const newBookingCount = await Booking.countDocuments({ viewed: false });
+    res.status(200).json({ count: newBookingCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching new booking count', error });
+  }
+};
+
+const markBookingsAsViewed = async (req, res) => {
+  try {
+    await Booking.updateMany({ viewed: false }, { viewed: true });
+    res.status(200).json({ message: 'All bookings marked as viewed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error marking bookings as viewed', error });
+  }
+};
+
+
+
 module.exports = {
   completedBooking,
   getUserBookings,
@@ -382,4 +396,6 @@ module.exports = {
   rejectBooking,
   getAllAcceptedBooking,
   getAllAcceptedBookingById,
+  getNewBookingCount,
+  markBookingsAsViewed
 };
