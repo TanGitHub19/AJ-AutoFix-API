@@ -86,8 +86,8 @@ bookingRouter.get('/new/count', getNewBookingCount);
 
 bookingRouter.put('/viewed', markBookingsAsViewed);
 
-bookingRouter.get('/bookings/new-count', auth , getNewUserBookingCount);
+bookingRouter.get("/bookings/new-count", auth, getNewUserBookingCount);
 
-bookingRouter.put('/bookings/viewed', auth , markUserBookingsAsViewed);
+bookingRouter.put("/userBooking/user-viewed", auth, markUserBookingsAsViewed);
 
 module.exports = bookingRouter;
