@@ -403,20 +403,37 @@ const markBookingsAsViewed = async (req, res) => {
   }
 };
 
-
 const getNewUserBookingCount = async (req, res) => {
   try {
     const authenticatedUserId = req.user._id;
 
-    const newUserBookingCount = await Booking.countDocuments({
+    const approvedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
-      status: { $in: ["Approved", "Rejected", "Completed"] },
-      viewed: false
+      status: "Approved",
+      viewed: false,
     });
 
-    res.status(200).json({ count: newUserBookingCount });
+    const rejectedBookingCount = await Booking.countDocuments({
+      userId: authenticatedUserId,
+      status: "Rejected",
+      viewed: false,
+    });
+
+    const completedBookingCount = await Booking.countDocuments({
+      userId: authenticatedUserId,
+      status: "Completed",
+      viewed: false,
+    });
+    const totalBookingCount =
+      approvedBookingCount + rejectedBookingCount + completedBookingCount;
+
+    res.status(200).json({
+      totalCount: totalBookingCount,
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching new user booking count', error });
+    res
+      .status(500)
+      .json({ message: "Error fetching new user booking counts", error });
   }
 };
 
