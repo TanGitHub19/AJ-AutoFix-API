@@ -410,6 +410,7 @@ const getNewUserBookingCount = async (req, res) => {
 
     const newUserBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
+      status: { $in: ["Approved", "Rejected", "Completed"] },
       viewed: false
     });
 
