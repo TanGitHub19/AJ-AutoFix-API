@@ -14,10 +14,13 @@ const {
   deleteBooking,
   acceptBooking,
   rejectBooking,
+  cancelBooking,
   getAllAcceptedBooking,
   getAllAcceptedBookingById,
   getNewBookingCount,
-  markBookingsAsViewed
+  markBookingsAsViewed,
+  getNewUserBookingCount,
+  markUserBookingsAsViewed
 } = require("../controllers/booking.controller");
 
 
@@ -75,11 +78,16 @@ bookingRouter.put(
   validateObjectId,
   completedBooking
 );
+bookingRouter.put("/booking/:id/cancel", auth, cancelBooking);
 
 bookingRouter.delete("/bookings/:id", auth, validateObjectId, deleteBooking);
 
 bookingRouter.get('/new/count', getNewBookingCount);
 
 bookingRouter.put('/viewed', markBookingsAsViewed);
+
+bookingRouter.get('/bookings/new-count', auth , getNewUserBookingCount);
+
+bookingRouter.put('/bookings/viewed', auth , markUserBookingsAsViewed);
 
 module.exports = bookingRouter;

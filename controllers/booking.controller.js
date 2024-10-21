@@ -363,6 +363,28 @@ const completedBooking = async (req, res) => {
   }
 };
 
+const cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const authenticatedUserId = req.user._id;
+
+    const booking = await Booking.findOneAndUpdate(
+      { _id: id, userId: authenticatedUserId },
+      { status: "Canceled" },
+      { new: true }
+    ).populate("userId", "fullname");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found or not authorized" });
+    }
+
+    res.status(200).json({ message: "Booking canceled successfully", booking });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 const getNewBookingCount = async (req, res) => {
   try {
     const newBookingCount = await Booking.countDocuments({ viewed: false });
@@ -382,6 +404,38 @@ const markBookingsAsViewed = async (req, res) => {
 };
 
 
+const getNewUserBookingCount = async (req, res) => {
+  try {
+    const authenticatedUserId = req.user._id;
+
+    const newUserBookingCount = await Booking.countDocuments({
+      userId: authenticatedUserId,
+      viewed: false
+    });
+
+    res.status(200).json({ count: newUserBookingCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching new user booking count', error });
+  }
+};
+
+const markUserBookingsAsViewed = async (req, res) => {
+  try {
+    const authenticatedUserId = req.user._id;
+
+    await Booking.updateMany(
+      { userId: authenticatedUserId, viewed: false },
+      { viewed: true }
+    );
+
+    res.status(200).json({ message: 'All user bookings marked as viewed' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error marking bookings as viewed', error });
+  }
+};
+
+
+
 
 module.exports = {
   completedBooking,
@@ -394,8 +448,11 @@ module.exports = {
   deleteBooking,
   acceptBooking,
   rejectBooking,
+  cancelBooking,
   getAllAcceptedBooking,
   getAllAcceptedBookingById,
   getNewBookingCount,
-  markBookingsAsViewed
+  markBookingsAsViewed,
+  getNewUserBookingCount,
+  markUserBookingsAsViewed
 };
