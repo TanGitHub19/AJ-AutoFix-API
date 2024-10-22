@@ -375,7 +375,9 @@ const cancelBooking = async (req, res) => {
     ).populate("userId", "fullname");
 
     if (!booking) {
-      return res.status(404).json({ message: "Booking not found or not authorized" });
+      return res
+        .status(404)
+        .json({ message: "Booking not found or not authorized" });
     }
 
     res.status(200).json({ message: "Booking canceled successfully", booking });
@@ -384,22 +386,28 @@ const cancelBooking = async (req, res) => {
   }
 };
 
-
 const getNewBookingCount = async (req, res) => {
   try {
-    const newBookingCount = await Booking.countDocuments({ viewed: false });
+    const newBookingCount = await Booking.countDocuments({
+      viewedByAdmin: false,
+    });
     res.status(200).json({ count: newBookingCount });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching new booking count', error });
+    res
+      .status(500)
+      .json({ message: "Error fetching new booking count for admin", error });
   }
 };
 
 const markBookingsAsViewed = async (req, res) => {
   try {
-    await Booking.updateMany({ viewed: false }, { viewed: true });
-    res.status(200).json({ message: 'All bookings marked as viewed' });
+    await Booking.updateMany({ viewedByAdmin: false }, { viewedByAdmin: true });
+
+    res.status(200).json({ message: "All bookings marked as viewed by admin" });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking bookings as viewed', error });
+    res
+      .status(500)
+      .json({ message: "Error marking bookings as viewed by admin", error });
   }
 };
 
@@ -410,22 +418,26 @@ const getNewUserBookingCount = async (req, res) => {
     const approvedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Approved",
-      viewed: false,
+      viewedByUser: false,
     });
 
     const rejectedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Rejected",
-      viewed: false,
+      viewedByUser: false,
     });
 
     const completedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Completed",
-      viewed: false,
+      viewedByUser: false,
     });
+
     const totalBookingCount =
-      approvedBookingCount + rejectedBookingCount + completedBookingCount;
+      approvedBookingCount +
+      rejectedBookingCount +
+      completedBookingCount +
+      pendingBookings;
 
     res.status(200).json({
       totalCount: totalBookingCount,
@@ -442,18 +454,19 @@ const markUserBookingsAsViewed = async (req, res) => {
     const authenticatedUserId = req.user._id;
 
     await Booking.updateMany(
-      { userId: authenticatedUserId, viewed: false },
-      { viewed: true }
+      { userId: authenticatedUserId, viewedByUser: false },
+      { viewedByUser: true }
     );
 
-    res.status(200).json({ message: 'All user bookings marked as viewed' });
+    res
+      .status(200)
+      .json({ message: "All user bookings marked as viewed by user" });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking bookings as viewed', error });
+    res
+      .status(500)
+      .json({ message: "Error marking bookings as viewed by user", error });
   }
 };
-
-
-
 
 module.exports = {
   completedBooking,
@@ -472,5 +485,5 @@ module.exports = {
   getNewBookingCount,
   markBookingsAsViewed,
   getNewUserBookingCount,
-  markUserBookingsAsViewed
+  markUserBookingsAsViewed,
 };

@@ -62,7 +62,11 @@ const bookingSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Rejected", "Completed", "Canceled"],
       default: "Pending",
     },
-    viewed: {
+    viewedByUser: {
+      type: Boolean,
+      default: false,
+    },
+    viewedByAdmin: {
       type: Boolean,
       default: false,
     },
