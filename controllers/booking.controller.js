@@ -410,7 +410,6 @@ const markBookingsAsViewed = async (req, res) => {
       .json({ message: "Error marking bookings as viewed by admin", error });
   }
 };
-
 const getNewUserBookingCount = async (req, res) => {
   try {
     const authenticatedUserId = req.user._id;
@@ -418,13 +417,13 @@ const getNewUserBookingCount = async (req, res) => {
     const approvedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Approved",
-      viewedByUser: false,
+      viewedByUser: false, 
     });
 
     const rejectedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Rejected",
-      viewedByUser: false,
+      viewedByUser: false, 
     });
 
     const completedBookingCount = await Booking.countDocuments({
@@ -436,8 +435,7 @@ const getNewUserBookingCount = async (req, res) => {
     const totalBookingCount =
       approvedBookingCount +
       rejectedBookingCount +
-      completedBookingCount +
-      pendingBookings;
+      completedBookingCount;
 
     res.status(200).json({
       totalCount: totalBookingCount,
