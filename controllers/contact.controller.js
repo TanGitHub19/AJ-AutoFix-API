@@ -3,7 +3,10 @@ const router = express.Router();
 const transporter = require('../config/emailConfig');
 
 const createEmail = async (req, res) => {
-  const { name, email, message } = req.body;
+  const email = req.user.email
+  const name = req.user.fullname
+  const { message } = req.body;
+
 
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'All fields are required' });
