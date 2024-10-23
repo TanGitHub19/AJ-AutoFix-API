@@ -325,29 +325,26 @@ const completedBooking = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const booking = await Booking.findById(id).populate("userId", "fullname");
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status: "Completed", viewedByUser: false },
+      { new: true }
+    ).populate("userId", "fullname");
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    if (booking.status !== "Approved") {
+    if (booking.status !== "Completed") {
       return res
         .status(400)
-        .json({ message: "Booking is not in an approved state" });
+        .json({ message: "Booking was not approved before completing" });
     }
-
-    booking.status = "Completed";
-    await booking.save();
 
     const completedBooking = {
       id: booking._id,
       userId: booking.userId ? booking.userId._id : null,
-      user: booking.userId
-        ? {
-            fullname: booking.userId.fullname,
-          }
-        : null,
+      user: booking.userId ? { fullname: booking.userId.fullname } : null,
       serviceType: booking.serviceType,
       vehicleType: booking.vehicleType,
       time: booking.time,
@@ -359,7 +356,8 @@ const completedBooking = async (req, res) => {
       .status(200)
       .json({ message: "Booking completed", booking: completedBooking });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Error completing booking:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -417,13 +415,13 @@ const getNewUserBookingCount = async (req, res) => {
     const approvedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Approved",
-      viewedByUser: false, 
+      viewedByUser: false,
     });
 
     const rejectedBookingCount = await Booking.countDocuments({
       userId: authenticatedUserId,
       status: "Rejected",
-      viewedByUser: false, 
+      viewedByUser: false,
     });
 
     const completedBookingCount = await Booking.countDocuments({
@@ -433,9 +431,7 @@ const getNewUserBookingCount = async (req, res) => {
     });
 
     const totalBookingCount =
-      approvedBookingCount +
-      rejectedBookingCount +
-      completedBookingCount;
+      approvedBookingCount + rejectedBookingCount + completedBookingCount;
 
     res.status(200).json({
       totalCount: totalBookingCount,
