@@ -146,7 +146,7 @@ const createBooking = async (req, res) => {
     const existingBooking = await Booking.findOne({
       time,
       date,
-      status: { $nin: ["Rejected", "Completed"] },
+      status: { $nin: ["Rejected", "Completed", "Canceled"] },
     });
     if (existingBooking) {
       return res.status(400).json({
